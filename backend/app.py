@@ -1,22 +1,27 @@
-# app.py
-
 from flask import Flask
 from flask_cors import CORS
-from routes.tasks import tasks_blueprint  # Blueprint for task-related routes
-from routes.auth import auth_blueprint    # Blueprint for authentication-related routes
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from routes import register_blueprints
 
-# Create a Flask application instance
+# Initialize Flask app
 app = Flask(__name__)
 
-# Enable Cross-Origin Resource Sharing (CORS) to allow frontend requests
-CORS(app)
+# Configure the app
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/react_to_do'  # Update with your DB user/password
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Avoids SQLAlchemy warning
 
-# Register the task management routes under the `/tasks` URL prefix
-app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
+# Initialize extensions
+db = SQLAlchemy(app)  # ORM for database
+migrate = Migrate(app, db)  # Migration tool for schema changes
+CORS(app)  # Enable Cross-Origin Resource Sharing
 
-# Register the authentication routes under the `/auth` URL prefix
-app.register_blueprint(auth_blueprint, url_prefix='/auth')
+# Import and register models
+from models import user, task  # Ensure these modules define the User and Task models
 
-# Start the application if this script is run directly
+# Register blueprints for routes
+register_blueprints(app)
+
+# Run the app
 if __name__ == "__main__":
-    app.run(debug=True)  # Enable debug mode for development (auto-reload on changes)
+    app.run(debug=True)
