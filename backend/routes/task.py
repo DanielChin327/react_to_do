@@ -5,6 +5,7 @@ from models import db
 
 task_blueprint = Blueprint('tasks', __name__)
 
+
 @task_blueprint.route('/', methods=['GET'])
 @jwt_required()
 def get_tasks():
